@@ -1,0 +1,9 @@
+{
+    "name": "StatsStunter",
+    "version_number": "1.0.0",
+    "website_url": "https://github.com/thunderstore-io",
+    "description": "Yet another desperate attempt to increase performance of the game",
+    "dependencies": [
+        "bbepis-BepInExPack-5.4.2113"
+    ]
+}
