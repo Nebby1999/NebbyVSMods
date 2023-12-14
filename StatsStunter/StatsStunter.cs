@@ -1,11 +1,6 @@
 using BepInEx;
-using MonoMod.Cil;
-using R2API;
 using RoR2;
 using RoR2.Stats;
-using System;
-using UnityEngine;
-using UnityEngine.AddressableAssets;
 using UnityEngine.SceneManagement;
 
 namespace StatsStunter

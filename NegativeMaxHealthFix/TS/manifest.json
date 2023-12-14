@@ -1,0 +1,9 @@
+{
+    "name": "NegativeMaxHealthFix",
+    "version_number": "1.0.0",
+    "website_url": "https://github.com/Nebby1999/NebbyVSMods",
+    "description": "Stops the game setting your max health to negative, which happens for whatever reason.",
+    "dependencies": [
+        "bbepis-BepInExPack-5.4.2113"
+    ]
+}
