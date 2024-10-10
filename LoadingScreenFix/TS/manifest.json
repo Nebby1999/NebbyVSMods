@@ -1,0 +1,9 @@
+{
+    "name": "LoadingScreenSpriteFix",
+    "version_number": "1.0.0",
+    "website_url": "https://github.com/Nebby1999/NebbyVSMods",
+    "description": "Fixes the loading screen sprite and numbers overlapping each other",
+    "dependencies": [
+        "bbepis-BepInExPack-5.4.2117"
+    ]
+}

@@ -14,9 +14,9 @@ namespace ImprovedEndingRewards.ImprovedEndings
     internal class ImprovedObliteration : IImprovedEnding
     {
         public bool IsEnabled => RewardsConfig._enableObliteration;
-        public static ConfigurableFloat _coinsPerStageBeaten;
-        public static ConfigurableBool _enableStagePenalty;
-        public static ConfigurableInt _stagePenalty;
+        private static ConfigurableFloat _coinsPerStageBeaten;
+        private static ConfigurableBool _enableStagePenalty;
+        private static ConfigurableInt _stagePenalty;
         public Dictionary<DifficultyIndex, ConfigurableFloat> difficultyToMultiplier = new Dictionary<DifficultyIndex, ConfigurableFloat>();
         public void Config()
         {
@@ -35,6 +35,7 @@ namespace ImprovedEndingRewards.ImprovedEndings
                     checkIfDisabled = () => !IsEnabled
                 };
             });
+
             _enableStagePenalty = RewardsConfig.MakeConfigurableBool(true, b =>
             {
                 b.ConfigFile = RewardsConfig._obliterationConfigFile;
@@ -60,6 +61,7 @@ namespace ImprovedEndingRewards.ImprovedEndings
                     checkIfDisabled = () => !IsEnabled || !_enableStagePenalty
                 };
             });
+
             RoR2Application.onLoad += ConfigDifficulties;
         }
 

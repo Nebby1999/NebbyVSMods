@@ -3,7 +3,7 @@ using MonoMod.RuntimeDetour;
 using RoR2;
 using System;
 
-namespace ImprovedEndingRewards
+namespace NegativeMaxHealthFix
 {
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
     public class NegativeMaxHealthFix : BaseUnityPlugin

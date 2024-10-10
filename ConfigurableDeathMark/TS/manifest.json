@@ -1,0 +1,9 @@
+{
+    "name": "ConfigurableDeathMark",
+    "version_number": "1.0.0",
+    "website_url": "",
+    "description": "Allows you to configure what Damage Over Times and what Debuffs count towards proccing DeathMark, DotAPI Support.",
+    "dependencies": [
+        "bbepis-BepInExPack-5.4.1801"
+    ]
+}

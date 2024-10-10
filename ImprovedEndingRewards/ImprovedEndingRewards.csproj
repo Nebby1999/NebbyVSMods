@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <LangVersion>preview</LangVersion>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <Configurations>Debug;Release;NoWeaver</Configurations>
   </PropertyGroup>
 
   <ItemGroup>

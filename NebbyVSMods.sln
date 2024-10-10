@@ -9,6 +9,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NegativeMaxHealthFix", "Neg
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImprovedEndingRewards", "ImprovedEndingRewards\ImprovedEndingRewards.csproj", "{63B908B4-22A2-41C4-A532-627E4C2D032D}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConfigurableDeathMark", "ConfigurableDeathMark\ConfigurableDeathMark.csproj", "{73CD2D15-FA6D-4BBE-8176-A208D79D5A49}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntermissionTweaker", "IntermissionTweaker\IntermissionTweaker.csproj", "{7ACE637B-9501-49B4-A52B-5A5624A38704}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LoadingScreenFix", "LoadingScreenFix\LoadingScreenFix.csproj", "{F1B60FFD-7584-498A-9C15-53DD5BF590BB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +33,18 @@ Global
 		{63B908B4-22A2-41C4-A532-627E4C2D032D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{63B908B4-22A2-41C4-A532-627E4C2D032D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{63B908B4-22A2-41C4-A532-627E4C2D032D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73CD2D15-FA6D-4BBE-8176-A208D79D5A49}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73CD2D15-FA6D-4BBE-8176-A208D79D5A49}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73CD2D15-FA6D-4BBE-8176-A208D79D5A49}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73CD2D15-FA6D-4BBE-8176-A208D79D5A49}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7ACE637B-9501-49B4-A52B-5A5624A38704}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7ACE637B-9501-49B4-A52B-5A5624A38704}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7ACE637B-9501-49B4-A52B-5A5624A38704}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7ACE637B-9501-49B4-A52B-5A5624A38704}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1B60FFD-7584-498A-9C15-53DD5BF590BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1B60FFD-7584-498A-9C15-53DD5BF590BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1B60FFD-7584-498A-9C15-53DD5BF590BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1B60FFD-7584-498A-9C15-53DD5BF590BB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
