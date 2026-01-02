@@ -14,7 +14,8 @@ namespace PrideOfTheMountain
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
     public class PrideOfTheMountainMain : BaseUnityPlugin
     {
-        private const string GAY_PRESET = "6;#732982;#004CFF;#008062;#FFED00;#FF8C00;#E40303";
+        private const string GAY_PRIDE = "5;#3D1A78;#7BADE2;#FFFFFF;#98E8C1;#078D70";
+        private const string RAINBOW_PRIDE = "6;#732982;#004CFF;#008062;#FFED00;#FF8C00;#E40303";
         private const string LESBIAN_PRESET = "5;#A40062;#D462A6;#FFFFFF;#FF9B56;#D62800";
         private const string BISEXUAL_PRESET = "5;#0038A8;#0038A8;#9B4F96;#D60270;#D60270";
         private const string TRANSGENDER_PRESET = "4;#5BCFFB;#F5ABB9;#FFFFFF;#F5ABB9";
@@ -24,6 +25,7 @@ namespace PrideOfTheMountain
         {
             Custom = -1,
             Gay,
+            Rainbow,
             Lesbian,
             Bisexual,
             Transgender,
@@ -113,6 +115,7 @@ namespace PrideOfTheMountain
         private ConfigEntry<string> _customPreset;
         private ConfigEntry<bool> _prideify;
         private Dictionary<Presets, FlagColorer> _flagColorers = new Dictionary<Presets, FlagColorer>();
+        private bool _customFailedToParse;
 
         private static ManualLogSource logger;
 
@@ -122,10 +125,11 @@ namespace PrideOfTheMountain
 
             BindConfigs();
 
-            if (_prideify.Value == false)
-                return;
 
             PopulateColorers();
+
+            if (_prideify.Value == false || _customFailedToParse == true)
+                return;
 
             On.RoR2.BossShrineCounter.RebuildIndicators += SetupPrideIndicators;
         }
@@ -134,20 +138,26 @@ namespace PrideOfTheMountain
         {
             _prideify = Config.Bind("Main Config", "Activate Recolors", true, "Wether the mod is active, set this to false to disable the mod's functionality.");
             _chosenPreset = Config.Bind("Main Config", "Preset", Presets.Transgender, "The current preset for shrine of the mountain icon patterns, each preset represents one of the built in pride flags. You can set this value to Custom if you wish to declare your own custom flag.");
-            _customPreset = Config.Bind("Main Config", "Custom Preset", CUSTOM_DEFAULT_PRESET, "A custom color preset. a Color preset is a string value separated by \";\" The first value is the total amount of colors the preset uses, afterwards you must specify each color for each index in a Hexadecimal format (ex: #FFFFFF). The default value for this config is a way to declare the \"NonBinary\" preset for the mod.");
+            _customPreset = Config.Bind("Main Config", "Custom Preset", CUSTOM_DEFAULT_PRESET, "A custom color preset. a Color preset is a string value separated by \";\" The first value is the total amount of colors the preset uses, afterwards you must specify each color for each index in a Hexadecimal format (ex: #FFFFFF). The default value for this config is a way to declare the \"Asexual\" flag colors as a custom preset for the mod.");
         }
 
         private void PopulateColorers()
         {
-            _flagColorers[Presets.Gay] = FlagColorer.Parse(GAY_PRESET);
+            _flagColorers[Presets.Rainbow] = FlagColorer.Parse(RAINBOW_PRIDE);
+            _flagColorers[Presets.NonBinary] = FlagColorer.Parse(NON_BINARY_PRESET);
             _flagColorers[Presets.Lesbian] = FlagColorer.Parse(LESBIAN_PRESET);
+            _flagColorers[Presets.Gay] = FlagColorer.Parse(GAY_PRIDE);
             _flagColorers[Presets.Bisexual] = FlagColorer.Parse(BISEXUAL_PRESET);
             _flagColorers[Presets.Transgender] = FlagColorer.Parse(TRANSGENDER_PRESET);
-            _flagColorers[Presets.NonBinary] = FlagColorer.Parse(NON_BINARY_PRESET);
 
             if(FlagColorer.TryParse(_customPreset.Value, out FlagColorer result))
             {
                 _flagColorers[Presets.Custom] = result;
+            }
+            else
+            {
+                logger.LogError("Custom preset failed to parse, the mod will not modify anything this session.");
+                _customFailedToParse = true;
             }
         }
 
