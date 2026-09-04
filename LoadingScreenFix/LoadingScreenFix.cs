@@ -52,7 +52,7 @@ namespace LoadingScreenFix
             instance = this;
             logger = Logger;
             LoadBundle();
-            On.RoR2.PickRandomObjectOnAwake.Awake += AddBlackBackgroundAndSpriteAnimations;
+            On.RoR2.PickRandomObjectOnAwake.OnEnable += AddBlackBackgroundAndSpriteAnimations;
 #if RELEASE
             On.RoR2.UI.MainMenu.MainMenuController.Awake += FreeMemoryAndDestroySelf;
             SceneManager.sceneLoaded += DisableBlackBackgrounds;
@@ -139,7 +139,7 @@ namespace LoadingScreenFix
             orig(self);
             Log("Freeing resources and killing self.");
 
-            On.RoR2.PickRandomObjectOnAwake.Awake -= AddBlackBackgroundAndSpriteAnimations;
+            On.RoR2.PickRandomObjectOnAwake.OnEnable -= AddBlackBackgroundAndSpriteAnimations;
             On.RoR2.UI.MainMenu.MainMenuController.Awake -= FreeMemoryAndDestroySelf;
             SceneManager.sceneLoaded -= DisableBlackBackgrounds;
 
@@ -180,7 +180,7 @@ namespace LoadingScreenFix
             Log("Not Splash");
         }
 
-        private void AddBlackBackgroundAndSpriteAnimations(On.RoR2.PickRandomObjectOnAwake.orig_Awake orig, PickRandomObjectOnAwake self)
+        private void AddBlackBackgroundAndSpriteAnimations(On.RoR2.PickRandomObjectOnAwake.orig_OnEnable orig, PickRandomObjectOnAwake self)
         {
             if (self.gameObject.name != "MiniScene")
             {
@@ -222,10 +222,10 @@ namespace LoadingScreenFix
         {
             _blackBackground = new GameObject("BlackBackground");
             var t = _blackBackground.AddComponent<RectTransform>();
-            t.SetParent(self.transform.parent);
+            t.SetParent(self.transform.parent.parent);
             t.SetAsFirstSibling();
             t.sizeDelta = new Vector2(256, 256);
-            t.localPosition = new Vector3(64, 16, -16);
+            t.localPosition = new Vector3(800, -477, 0); // magic numbers i got that looked good from unity editor :nikodurr: .,., 
             var img = _blackBackground.AddComponent<Image>();
             _blackBackgroundInstances.Add(img);
             img.color = Color.black;
