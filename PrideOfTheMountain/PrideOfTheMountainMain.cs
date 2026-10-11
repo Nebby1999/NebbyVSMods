@@ -109,7 +109,7 @@ namespace PrideOfTheMountain
 
         public const string PluginName = "PrideOfTheMountain";
 
-        public const string PluginVersion = "1.0.0";
+        public const string PluginVersion = "1.1.0";
         private int _TintColor = Shader.PropertyToID(nameof(_TintColor));
         private ConfigEntry<Presets> _chosenPreset;
         private ConfigEntry<string> _customPreset;
@@ -165,7 +165,7 @@ namespace PrideOfTheMountain
         {
             DestroyMaterialsOnIndicators(self._indicators);
             orig(self);
-            PrideifyCounters(self._indicators, self._indicatorCount);
+            PrideifyCounters(self._indicators);
         }
 
         private void DestroyMaterialsOnIndicators(List<GameObject> indicators)
@@ -179,14 +179,14 @@ namespace PrideOfTheMountain
             }
         }
 
-        private void PrideifyCounters(List<GameObject> indicators, int indicatorCount)
+        private void PrideifyCounters(List<GameObject> indicators)
         {
             if (_flagColorers.TryGetValue(_chosenPreset.Value, out FlagColorer flagColorer))
             {
                 int colorerIndex = 0;
 
                 //This is the indicator index.
-                for(int i = 0; i < indicatorCount; i++)
+                for(int i = 0; i < indicators.Count; i++)
                 {
                     GameObject indicator = indicators[i];
                     MeshRenderer meshRenderer = indicator.GetComponent<MeshRenderer>();

@@ -1,6 +1,6 @@
 {
     "name": "PrideOfTheMountain",
-    "version_number": "1.0.0",
+    "version_number": "1.1.0",
     "website_url": "https://github.com/Nebby1999/NebbyVSMods",
     "description": "Modifies the Shrine of the Mountain icons on the teleporter to be pride flags",
     "dependencies": [
