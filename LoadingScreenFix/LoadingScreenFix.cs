@@ -35,7 +35,7 @@ namespace LoadingScreenFix
         /// <summary>
         /// Plugin's Version
         /// </summary>
-        public const string PluginVersion = "2.0.0";
+        public const string PluginVersion = "2.0.2";
 
         private GameObject _blackBackground;
         private GameObject _walkPrefab;
@@ -225,7 +225,7 @@ namespace LoadingScreenFix
             t.SetParent(self.transform.parent.parent);
             t.SetAsFirstSibling();
             t.sizeDelta = new Vector2(256, 256);
-            t.localPosition = new Vector3(800, -477, 0); // magic numbers i got that looked good from unity editor :nikodurr: .,., 
+            t.localPosition = new Vector3(800, -477, 0); // magic numbers i got that looked good from unity editor :nikodurr: .,., //Thanks kina <3
             var img = _blackBackground.AddComponent<Image>();
             _blackBackgroundInstances.Add(img);
             img.color = Color.black;
