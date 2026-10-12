@@ -16,7 +16,7 @@ The API's part of this mod was originally part of MSU 2.0's launch, i noticed it
 
 This mod contains a single AssetBundle which contains a pre-made prefab that works as a generic container for the animation and the animator itself.
 
-The methods for adding the new animations are meant to be purely temporary and exist during the loading screen only, once the game reaches the main menu screen, the mod unhooks all the hooks done and destroys the given sprite animations, alongside unloading any bundles passed over. this is done for memory reasons. You can always just instantiate a clone of the animation and only pass that to avoid deleting the actual metadata of the sprite animation.
+The methods for adding the new animations need to be called before the game's loading procedure begins. The sprite animations will also be added to the "inbetween scenes" loading sprites.the sprite animation.
 
 For the overlapping sprite issue, instead of actually figuring out why the hell it happens, this mod adds a black background behind the Numbers and the loading sprite.
 

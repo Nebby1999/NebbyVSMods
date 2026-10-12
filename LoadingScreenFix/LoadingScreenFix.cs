@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Path = System.IO.Path;
@@ -20,6 +21,7 @@ namespace LoadingScreenFix
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
     public class LoadingScreenFix : BaseUnityPlugin
     {
+        public const string MINI_SCENE_ADDRESS = "3a63b5675ffabd247aa47f7eeadf946e";
         /// <summary>
         /// Plugin GUID
         /// </summary>
@@ -35,37 +37,37 @@ namespace LoadingScreenFix
         /// <summary>
         /// Plugin's Version
         /// </summary>
-        public const string PluginVersion = "2.0.2";
+        public const string PluginVersion = "3.0.0";
 
         private GameObject _blackBackground;
         private GameObject _walkPrefab;
         private List<SimpleSpriteAnimation> _spriteAnimations = new List<SimpleSpriteAnimation>();
-        private HashSet<AssetBundle> _assetBundles = new HashSet<AssetBundle>();
-        private List<Image> _blackBackgroundInstances = new List<Image>();
 
         private AssetBundle _myBundle;
         private static bool _pastOrigSelfOnPickRandomObjectOnAwake;
+        private static bool _blackBackgroundsAdded;
+
         internal static LoadingScreenFix instance;
         internal static ManualLogSource logger;
+        private static PickRandomObjectOnAwake _screenTintCanvasMiniScenePickRandomObjectOnAwake;
         private void Awake()
         {
             instance = this;
             logger = Logger;
             LoadBundle();
             On.RoR2.PickRandomObjectOnAwake.OnEnable += AddBlackBackgroundAndSpriteAnimations;
-#if RELEASE
-            On.RoR2.UI.MainMenu.MainMenuController.Awake += FreeMemoryAndDestroySelf;
+            On.RoR2.UI.MainMenu.MainMenuController.Awake += UnhookDestroyBackgroundAndAddToMiniScenePrefab;
             SceneManager.sceneLoaded += DisableBlackBackgrounds;
-#endif
+
+            Addressables.LoadAssetAsync<GameObject>(MINI_SCENE_ADDRESS).Completed += (obj) => _screenTintCanvasMiniScenePickRandomObjectOnAwake = obj.Result.GetComponent<PickRandomObjectOnAwake>();
+
             Log("Awake Called");
         }
 
         /// <summary>
         /// Adds the <see cref="SimpleSpriteAnimation"/> found within <paramref name="sourceBundle"/>.
-        /// 
-        /// <para>The API expects that this assetbundle only contains the sprite animations, as such, once we're past the loading screen, the loaded <see cref="SimpleSpriteAnimation"/>s and the <paramref name="sourceBundle"/> will be DESTROYED and UNLOADED respectively.</para>
-        /// <br>If you made your <see cref="SimpleSpriteAnimation"/> from code, or want to avoid the unloading of the source bundle, look at <see cref="AddSpriteAnimation(SimpleSpriteAnimation)"/></br>
-        /// </summary>
+        /// <para>The AssetBundle will not be unloaded, and the SimpleSpriteAnimations will be added to the ones that can be found when loading new stages and scenes.</para>
+        /// <br>If you made your <see cref="SimpleSpriteAnimation"/> from code, or want to avoid adding all of the ones found in the bundle, look at <see cref="AddSpriteAnimation(SimpleSpriteAnimation)"/></br>
         /// <param name="sourceBundle">The AssetBundle from which we will load the simple sprite animations</param>
         public static void AddSpriteAnimations(AssetBundle sourceBundle)
         {
@@ -75,21 +77,13 @@ namespace LoadingScreenFix
                 return;
             }
 
-            instance._assetBundles.Add(sourceBundle);
             foreach(var ssa in sourceBundle.LoadAllAssets<SimpleSpriteAnimation>())
             {
                 AddSpriteAnimation(ssa);
             }
         }
 
-        /// <summary>
-        /// Adds the <paramref name="spriteAnimation"/>, which was loaded from <paramref name="sourceBundle"/>
-        /// 
-        /// <para>The API expects that this assetbundle only contains the sprite animations, as such, once we're past the loading screen, the <paramref name="spriteAnimation"/> and the <paramref name="sourceBundle"/> will be DESTROYED and UNLOADED respectively.</para>
-        /// <br>If you made your <see cref="SimpleSpriteAnimation"/> from code, or want to avoid the unloading of the source bundle, look at <see cref="AddSpriteAnimation(SimpleSpriteAnimation)"/></br>
-        /// </summary>
-        /// <param name="spriteAnimation">The <see cref="SimpleSpriteAnimation"/> that contains the sprite animation</param>
-        /// <param name="sourceBundle">The AssetBundle from which <paramref name="spriteAnimation"/> was loaded from</param>
+        [Obsolete("LoadingScrenFix no longer stores the source assetbundle, either call \"AddSpriteAnimations(AssetBundle)\" or \"AddSpriteAnimation(SimpleSpriteAnimation)\"")]
         public static void AddSpriteAnimation(SimpleSpriteAnimation spriteAnimation, AssetBundle sourceBundle)
         {
             if(_pastOrigSelfOnPickRandomObjectOnAwake)
@@ -98,20 +92,11 @@ namespace LoadingScreenFix
                 return;
             }
 
-            instance._assetBundles.Add(sourceBundle);
             AddSpriteAnimation(spriteAnimation);
         }
 
         /// <summary>
         /// Adds the <paramref name="spriteAnimation"/> to the loading screen sprite animations.
-        /// 
-        /// <para>The API will eventually DESTROY the instance of the <paramref name="spriteAnimation"/> once we're past the loading screen, if you want to keep your SpriteAnimation, consider giving the API a duplicate instance by calling UnityEngine.Object.Instantiate() and using your sprite animation as the argument.</para>
-        /// <code>
-        /// private static void AddAnimationButKeepObjectAlive(SimpleSpriteAnimation orig)
-        /// {
-        ///     LoadingScreenFix.AddSpriteAnimation(UnityEngine.Object.Instantiate(orig));
-        /// }
-        /// </code>
         /// </summary>
         /// <param name="spriteAnimation">The sprite animation which will be added.</param>
         public static void AddSpriteAnimation(SimpleSpriteAnimation spriteAnimation)
@@ -134,13 +119,13 @@ namespace LoadingScreenFix
             _walkPrefab = _myBundle.LoadAsset<GameObject>("CustomSpriteWalk");
         }
 
-        private void FreeMemoryAndDestroySelf(On.RoR2.UI.MainMenu.MainMenuController.orig_Awake orig, RoR2.UI.MainMenu.MainMenuController self)
+        private void UnhookDestroyBackgroundAndAddToMiniScenePrefab(On.RoR2.UI.MainMenu.MainMenuController.orig_Awake orig, RoR2.UI.MainMenu.MainMenuController self)
         {
             orig(self);
             Log("Freeing resources and killing self.");
 
             On.RoR2.PickRandomObjectOnAwake.OnEnable -= AddBlackBackgroundAndSpriteAnimations;
-            On.RoR2.UI.MainMenu.MainMenuController.Awake -= FreeMemoryAndDestroySelf;
+            On.RoR2.UI.MainMenu.MainMenuController.Awake -= UnhookDestroyBackgroundAndAddToMiniScenePrefab;
             SceneManager.sceneLoaded -= DisableBlackBackgrounds;
 
             if (_blackBackground)
@@ -149,19 +134,10 @@ namespace LoadingScreenFix
                 Destroy(_blackBackground);
             }
 
-            foreach(var anim in _spriteAnimations)
+            if(_screenTintCanvasMiniScenePickRandomObjectOnAwake)
             {
-                Log("Destroying " + anim);
-                Destroy(anim);
+                AddSprites(_screenTintCanvasMiniScenePickRandomObjectOnAwake);
             }
-
-            foreach(var bundle in _assetBundles)
-            {
-                Log("Unloading " + bundle);
-                bundle.Unload(true);
-            }
-            Log("Unloading own bundle");
-            _myBundle.Unload(true);
         }
 
         private void DisableBlackBackgrounds(Scene arg0, LoadSceneMode arg1)
@@ -169,12 +145,9 @@ namespace LoadingScreenFix
             Log("Checking if splash");
             if(arg0.name == "splash")
             {
-                Log("Its splash, disabling all black backgrounds.");
-
-                foreach(var blackBackground in _blackBackgroundInstances)
-                {
-                    blackBackground.enabled = false;
-                }
+                Log("Its splash, deleting all black backgrounds.");
+                Destroy(_blackBackground);
+                _blackBackground = null;
                 return;
             }
             Log("Not Splash");
@@ -190,8 +163,8 @@ namespace LoadingScreenFix
             _pastOrigSelfOnPickRandomObjectOnAwake = true;
             AddSprites(self);
             AddBackgrounds(self);
+
             orig(self);
-            
         }
 
         private void AddSprites(PickRandomObjectOnAwake self)
@@ -203,6 +176,10 @@ namespace LoadingScreenFix
                     Log($"Creating sprite for {anim}");
 
                     var instance = GameObject.Instantiate(_walkPrefab, self.transform);
+
+                    //If this is true it means it's the sprites for the inbetween scene loading. Which's local position needs to be zero.
+                    if(_blackBackgroundsAdded)
+                        instance.transform.localPosition = Vector3.zero;
 
                     instance.name = $"{anim}Animator";
                     var animator = instance.GetComponentInChildren<SimpleSpriteAnimator>();
@@ -220,6 +197,11 @@ namespace LoadingScreenFix
 
         private void AddBackgrounds(PickRandomObjectOnAwake self)
         {
+            if (_blackBackgroundsAdded)
+                return;
+
+            _blackBackgroundsAdded = true;
+
             _blackBackground = new GameObject("BlackBackground");
             var t = _blackBackground.AddComponent<RectTransform>();
             t.SetParent(self.transform.parent.parent);
@@ -227,7 +209,6 @@ namespace LoadingScreenFix
             t.sizeDelta = new Vector2(256, 256);
             t.localPosition = new Vector3(800, -477, 0); // magic numbers i got that looked good from unity editor :nikodurr: .,., //Thanks kina <3
             var img = _blackBackground.AddComponent<Image>();
-            _blackBackgroundInstances.Add(img);
             img.color = Color.black;
         }
 

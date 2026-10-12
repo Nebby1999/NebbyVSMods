@@ -1,3 +1,9 @@
+# 3.0.0
+
+* Updated for Hallowed Concepts
+* Sprites will no longer unload or destroy after the loading screen
+* Sprites are now added to the "inbetween scene" loading sprites
+
 # 2.0.2
 
 * Actually fixed the mod accidentally hiding the % character
