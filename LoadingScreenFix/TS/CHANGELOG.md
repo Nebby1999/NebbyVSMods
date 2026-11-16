@@ -1,3 +1,9 @@
+# 3.1.0
+
+* Added a feature to specify a Sprite's Pivot and SizeDelta
+    * This should allow the sprite to feel "right", specially with sprites that have considerably different widths and heights.
+* The black background now scales to cover the entirety of the sprites instead of being a fixed width and height
+
 # 3.0.1
 
 * Fix the sprites being eldritch horror material

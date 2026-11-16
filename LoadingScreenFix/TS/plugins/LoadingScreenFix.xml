@@ -36,6 +36,14 @@
             </summary>
             <param name="spriteAnimation">The sprite animation which will be added.</param>
         </member>
+        <member name="M:LoadingScreenFix.LoadingScreenFix.AddSpriteAnimation(RoR2.SimpleSpriteAnimation,System.Nullable{UnityEngine.Vector2},System.Nullable{UnityEngine.Vector2})">
+            <summary>
+            Adds the <paramref name="spriteAnimation"/> to the loading screen sprite animations
+            </summary>
+            <param name="spriteAnimation">The sprite animation which will be added.</param>
+            <param name="pivotOverride">Override for the RectTransform's pivot, by default its <code>new Vector2(1, 0)</code></param>
+            <param name="sizeDeltaOverride">Override for the RectTransform's sizeDelta, by default its <code>new Vector2(32, 32)</code></param>
+        </member>
         <member name="T:LoadingScreenFix.SimpleSpriteAnimationGenerator">
             <summary>
             Static class used for creating SimpleSpriteAnimations at runtime.

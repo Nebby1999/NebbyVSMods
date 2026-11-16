@@ -21,6 +21,13 @@ namespace LoadingScreenFix
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
     public class LoadingScreenFix : BaseUnityPlugin
     {
+        private struct SimpleSpriteAnimationData
+        {
+            public SimpleSpriteAnimation animation;
+            public Vector2 pivot;
+            public Vector2 sizeDelta;
+        }
+
         public const string MINI_SCENE_ADDRESS = "3a63b5675ffabd247aa47f7eeadf946e";
         /// <summary>
         /// Plugin GUID
@@ -37,11 +44,11 @@ namespace LoadingScreenFix
         /// <summary>
         /// Plugin's Version
         /// </summary>
-        public const string PluginVersion = "3.0.0";
+        public const string PluginVersion = "3.1.0";
 
         private GameObject _blackBackground;
         private GameObject _walkPrefab;
-        private List<SimpleSpriteAnimation> _spriteAnimations = new List<SimpleSpriteAnimation>();
+        private List<SimpleSpriteAnimationData> _spriteAnimations = new List<SimpleSpriteAnimationData>();
 
         private AssetBundle _myBundle;
         private static bool _pastOrigSelfOnPickRandomObjectOnAwake;
@@ -101,13 +108,32 @@ namespace LoadingScreenFix
         /// <param name="spriteAnimation">The sprite animation which will be added.</param>
         public static void AddSpriteAnimation(SimpleSpriteAnimation spriteAnimation)
         {
+            AddSpriteAnimation(spriteAnimation, new Vector2(1, 0), new Vector2(32, 32));
+        }
+
+        /// <summary>
+        /// Adds the <paramref name="spriteAnimation"/> to the loading screen sprite animations
+        /// </summary>
+        /// <param name="spriteAnimation">The sprite animation which will be added.</param>
+        /// <param name="pivotOverride">Override for the RectTransform's pivot, by default its <code>new Vector2(1, 0)</code></param>
+        /// <param name="sizeDeltaOverride">Override for the RectTransform's sizeDelta, by default its <code>new Vector2(32, 32)</code></param>
+        public static void AddSpriteAnimation(SimpleSpriteAnimation spriteAnimation, Vector2? pivotOverride = null, Vector2? sizeDeltaOverride = null)
+        {
+            Vector2 pivot = pivotOverride ?? new Vector2(1, 0);
+            Vector2 sizeDelta = sizeDeltaOverride ?? new Vector2(32, 32);
+
             if (_pastOrigSelfOnPickRandomObjectOnAwake)
             {
                 instance.Logger.LogInfo("Too late! we're already past the loading screen, consider calling the API's methods on your mod's awake.");
                 return;
             }
 
-            instance._spriteAnimations.Add(spriteAnimation);
+            instance._spriteAnimations.Add(new SimpleSpriteAnimationData
+            {
+                animation = spriteAnimation,
+                pivot = pivot,
+                sizeDelta = sizeDelta,
+            });
         }
 
         private void LoadBundle()
@@ -173,7 +199,7 @@ namespace LoadingScreenFix
             {
                 try
                 {
-                    Log($"Creating sprite for {anim}");
+                    Log($"Creating sprite for {anim.animation}");
 
                     var instance = GameObject.Instantiate(_walkPrefab, self.transform);
 
@@ -181,10 +207,18 @@ namespace LoadingScreenFix
                     if(_blackBackgroundsAdded)
                         instance.transform.localPosition = Vector3.zero;
 
-                    instance.name = $"{anim}Animator";
+                    instance.name = $"{anim.animation.name}Animator";
+                    
                     var animator = instance.GetComponentInChildren<SimpleSpriteAnimator>();
-                    animator.animation = anim;
-                    animator.target.sprite = anim.frames.FirstOrDefault().sprite;
+                    
+                    animator.animation = anim.animation;
+                    animator.target.sprite = anim.animation.frames.FirstOrDefault().sprite;
+
+                    if(animator.TryGetComponent<RectTransform>(out var rectTransform))
+                    {
+                        rectTransform.pivot = anim.pivot;
+                        rectTransform.sizeDelta = anim.sizeDelta;
+                    }
 
                     HG.ArrayUtils.ArrayAppend(ref self.ObjectsToSelect, instance);
                 }
@@ -206,10 +240,53 @@ namespace LoadingScreenFix
             var t = _blackBackground.AddComponent<RectTransform>();
             t.SetParent(self.transform.parent.parent);
             t.SetAsFirstSibling();
-            t.sizeDelta = new Vector2(256, 256);
-            t.localPosition = new Vector3(800, -477, 0); // magic numbers i got that looked good from unity editor :nikodurr: .,., //Thanks kina <3
+            FitToChildrenOf(t, self.transform.parent as RectTransform);
+            //t.localPosition = new Vector3(800, -477, 0); // magic numbers i got that looked good from unity editor :nikodurr: .,., //Thanks kina <3
             var img = _blackBackground.AddComponent<Image>();
             img.color = Color.black;
+        }
+
+        private void FitToChildrenOf(RectTransform target, RectTransform source)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(source);
+            Canvas.ForceUpdateCanvases();
+
+            var corners = new Vector3[4];
+            bool found = false;
+            Vector2 min = Vector2.zero, max = Vector2.zero;
+
+            foreach (var rt in source.GetComponentsInChildren<RectTransform>(true))
+            {
+                if (rt == source) 
+                    continue;
+
+                rt.GetWorldCorners(corners);
+                for (int i = 0; i < 4; i++)
+                {
+                    Vector2 p = target.InverseTransformPoint(corners[i]);
+                    if (!found) 
+                    { 
+                        min = max = p; 
+                        found = true; 
+                    }
+                    else 
+                    { 
+                        min = Vector2.Min(min, p); 
+                        max = Vector2.Max(max, p); 
+                    }
+                }
+            }
+
+            if (!found) 
+                return;
+
+            Vector2 size = max - min;
+            target.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
+            target.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
+
+            Vector2 desiredCenter = (min + max) * 0.5f;
+            Vector2 currentCenter = new Vector2((0.5f - target.pivot.x) * size.x, (0.5f - target.pivot.y) * size.y);
+            target.position += target.TransformVector(desiredCenter - currentCenter);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
