@@ -1,3 +1,7 @@
+# 3.0.1
+
+* Fix the sprites being eldritch horror material
+
 # 3.0.0
 
 * Updated for Hallowed Concepts
